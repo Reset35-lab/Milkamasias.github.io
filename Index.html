@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Autoevaluación Hormonal — Método Reset 35+</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#fafaf8;color:#2c2c2a;padding:1.5rem}
+.wrap{max-width:680px;margin:0 auto;padding-bottom:3rem}
+.header{text-align:center;margin-bottom:2rem}
+.header h1{font-size:20px;font-weight:600;color:#2c2c2a;margin-bottom:4px}
+.header p{font-size:13px;color:#888780}
+.scale-legend{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-bottom:2rem;padding:12px;background:#f1efe8;border-radius:10px}
+.scale-legend span{font-size:12px;color:#888780}
+.scale-legend strong{color:#2c2c2a;font-weight:600}
+.section{margin-bottom:1.5rem;border:0.5px solid #d3d1c7;border-radius:14px;overflow:hidden;background:#fff}
+.section-header{padding:14px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.section-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.section-title{font-size:15px;font-weight:600;color:#2c2c2a;flex:1}
+.section-subtitle{font-size:12px;color:#888780;font-weight:400}
+.section-score-badge{font-size:12px;font-weight:600;padding:3px 10px;border-radius:20px;min-width:32px;text-align:center}
+.section-body{padding:0 16px 16px;display:none}
+.section-body.open{display:block}
+.question{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:0.5px solid #e8e6e0}
+.question:last-of-type{border-bottom:none}
+.question-text{flex:1;font-size:13px;color:#2c2c2a;line-height:1.5}
+.radio-group{display:flex;gap:4px;flex-shrink:0}
+.radio-group button{width:32px;height:32px;border-radius:8px;border:0.5px solid #b4b2a9;background:#fff;font-size:13px;font-weight:600;cursor:pointer;color:#888780;transition:all 0.15s}
+.radio-group button:hover{background:#f1efe8}
+.result-bar{margin-top:14px;padding-top:14px;border-top:0.5px solid #e8e6e0}
+.result-bar-track{height:8px;background:#f1efe8;border-radius:4px;overflow:hidden;margin-bottom:8px}
+.result-bar-fill{height:100%;border-radius:4px;transition:width 0.4s ease}
+.result-label{font-size:13px;font-weight:600}
+.result-tip{font-size:12px;color:#888780;margin-top:4px;line-height:1.5}
+.summary{margin-top:2rem;border:0.5px solid #d3d1c7;border-radius:14px;padding:20px;display:none;background:#fff}
+.summary.visible{display:block}
+.summary h2{font-size:16px;font-weight:600;color:#2c2c2a;margin-bottom:16px;text-align:center}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:20px}
+.summary-card{padding:12px;border-radius:10px;background:#f1efe8;text-align:center}
+.summary-card .name{font-size:11px;color:#888780;margin-bottom:4px}
+.summary-card .val{font-size:22px;font-weight:600}
+.summary-card .lbl{font-size:10px;margin-top:2px}
+.alert-list{display:flex;flex-direction:column;gap:8px}
+.alert-item{display:flex;align-items:flex-start;gap:10px;padding:12px;border-radius:10px}
+.alert-icon{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.alert-title{font-size:13px;font-weight:600}
+.alert-desc{font-size:12px;color:#5f5e5a;margin-top:2px;line-height:1.5}
+.reset-btn{margin-top:16px;width:100%;padding:10px;border:0.5px solid #b4b2a9;border-radius:10px;background:#fff;cursor:pointer;font-size:13px;color:#888780}
+.reset-btn:hover{background:#f1efe8}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h1>Autoevaluación hormonal — Método Reset 35+</h1>
+    <p>Responde cada síntoma con la frecuencia que lo experimentas</p>
+  </div>
+  <div class="scale-legend">
+    <span><strong>0</strong> Nunca</span>
+    <span><strong>1</strong> A veces</span>
+    <span><strong>2</strong> Frecuente</span>
+    <span><strong>3</strong> Muy frecuente</span>
+  </div>
+  <div id="sections"></div>
+  <div class="summary" id="summary">
+    <h2>Tu resumen hormonal</h2>
+    <div class="summary-grid" id="summary-grid"></div>
+    <div class="alert-list" id="alert-list"></div>
+    <button class="reset-btn" onclick="resetAll()">Reiniciar evaluación</button>
+  </div>
+</div>
+<script>
+const SECTIONS=[
+  {id:"cortisol",label:"Cortisol",sub:"Hormona del estrés",color:"#D85A30",bg:"#FAECE7",textColor:"#993C1D",
+   questions:["Me cuesta relajarme o siempre estoy preocupada","Me despierto cansada aunque haya dormido","Tengo ansiedad por comer dulce o harinas","Acumulo grasa principalmente en el abdomen","Me siento inflamada o con el vientre duro","Me cuesta dormir profundamente","Tengo cansancio durante el día pero energía en la noche"],
+   ranges:[{max:6,label:"Cortisol equilibrado",tip:"Tu nivel de estrés está bien manejado.",level:0},{max:12,label:"Estrés moderado",tip:"Tu cuerpo muestra señales de estrés sostenido.",level:1},{max:21,label:"Posible cortisol elevado",tip:"Tu cuerpo necesita bajar el estrés urgentemente.",level:2}]},
+  {id:"insulina",label:"Insulina",sub:"Control del azúcar",color:"#BA7517",bg:"#FAEEDA",textColor:"#854F0B",
+   questions:["Siento hambre cada 2-3 horas","Me da sueño después de comer","Tengo antojos intensos de dulce","Subo de peso fácilmente","Me cuesta perder grasa aunque haga dieta","Tengo grasa acumulada en abdomen","Siento bajones de energía durante el día"],
+   ranges:[{max:6,label:"Buen control de azúcar",tip:"Tu metabolismo de glucosa funciona bien.",level:0},{max:12,label:"Posible resistencia leve",tip:"Tu cuerpo puede estar comenzando a resistir la insulina.",level:1},{max:21,label:"Probable resistencia a la insulina",tip:"Tu cuerpo necesita estabilizar el azúcar.",level:2}]},
+  {id:"estrogeno",label:"Estrógeno",sub:"Hormona femenina",color:"#D4537E",bg:"#FBEAF0",textColor:"#993556",
+   questions:["Retengo líquidos con facilidad","Tengo inflamación abdominal frecuente","Subo de peso en caderas o muslos","Tengo cambios de humor intensos","Tengo dolor o sensibilidad en los senos","Me siento más cansada antes del periodo","Tengo dificultad para perder peso después de los 35"],
+   ranges:[{max:6,label:"Equilibrio hormonal",tip:"Tus niveles de estrógeno parecen equilibrados.",level:0},{max:12,label:"Posible dominancia estrogénica",tip:"Pueden aparecer síntomas de exceso de estrógeno.",level:1},{max:21,label:"Estrógeno elevado",tip:"Tu cuerpo necesita desinflamar y reequilibrar.",level:2}]},
+  {id:"progesterona",label:"Progesterona",sub:"Hormona de la calma",color:"#534AB7",bg:"#EEEDFE",textColor:"#3C3489",
+   questions:["Me cuesta dormir profundamente","Tengo ansiedad o irritabilidad","Tengo ciclos irregulares","Siento estrés constante","Me siento emocionalmente sensible","Tengo dificultad para relajarme","Me siento agotada mentalmente"],
+   ranges:[{max:6,label:"Buen equilibrio",tip:"Tu progesterona parece estar en niveles adecuados.",level:0},{max:12,label:"Progesterona baja",tip:"Tu cuerpo puede beneficiarse de más descanso y calma.",level:1},{max:21,label:"Posible desequilibrio hormonal",tip:"Tu cuerpo necesita descanso profundo y apoyo hormonal.",level:2}]},
+  {id:"tiroides",label:"Tiroides",sub:"Hormonas metabólicas",color:"#1D9E75",bg:"#E1F5EE",textColor:"#0F6E56",
+   questions:["Me cuesta bajar de peso aunque coma poco","Siempre tengo frío","Me siento cansada sin razón","Tengo caída del cabello","Tengo piel seca","Me cuesta concentrarme","Tengo metabolismo lento"],
+   ranges:[{max:6,label:"Metabolismo activo",tip:"Tu tiroides parece funcionar con normalidad.",level:0},{max:12,label:"Metabolismo lento moderado",tip:"Tu metabolismo puede estar desacelerándose.",level:1},{max:21,label:"Posible metabolismo lento",tip:"Tu cuerpo necesita activar el metabolismo.",level:2}]}
+];
+const state={};
+SECTIONS.forEach(s=>{state[s.id]=new Array(7).fill(-1)});
+function getScore(id){return state[id].reduce((a,v)=>a+(v>=0?v:0),0)}
+function allAnswered(id){return state[id].every(v=>v>=0)}
+function getRange(sec,score){for(const r of sec.ranges){if(score<=r.max)return r;}return sec.ranges[sec.ranges.length-1]}
+function levelColors(level){return [["#27500A","#EAF3DE"],["#854F0B","#FAEEDA"],["#A32D2D","#FCEBEB"]][level]||["#27500A","#EAF3DE"]}
+function renderSections(){
+  const container=document.getElementById("sections");
+  container.innerHTML="";
+  SECTIONS.forEach(sec=>{
+    const div=document.createElement("div");
+    div.className="section";
+    const score=getScore(sec.id);
+    const answered=allAnswered(sec.id);
+    const range=getRange(sec,score);
+    const [rc,rbg]=levelColors(range.level);
+    const pct=Math.round((score/21)*100);
+    div.innerHTML=`<div class="section-header" onclick="toggleSection('${sec.id}')"><div class="section-dot" style="background:${sec.color}"></div><div class="section-title">${sec.label} <span class="section-subtitle">— ${sec.sub}</span></div>${answered?`<div class="section-score-badge" style="background:${rbg};color:${rc}">${score}/21</div>`:`<div style="font-size:11px;color:#888780">0/7 respondidas</div>`}</div><div class="section-body" id="body-${sec.id}">${sec.questions.map((q,i)=>`<div class="question"><span class="question-text">${q}</span><div class="radio-group">${[0,1,2,3].map(v=>`<button onclick="pick('${sec.id}',${i},${v})" style="${state[sec.id][i]===v?`background:${sec.color};border-color:${sec.color};color:#fff;`:''}">${v}</button>`).join('')}</div></div>`).join('')}${answered?`<div class="result-bar"><div class="result-bar-track"><div class="result-bar-fill" style="width:${pct}%;background:${sec.color}"></div></div><div class="result-label" style="color:${rc}">${range.label}</div><div class="result-tip">${range.tip}</div></div>`:''}</div>`;
+    container.appendChild(div);
+  });
+  checkSummary();
+}
+function toggleSection(id){document.getElementById("body-"+id).classList.toggle("open")}
+function pick(secId,qIdx,val){state[secId][qIdx]=val;renderSections();document.getElementById("body-"+secId).classList.add("open")}
+function checkSummary(){
+  const allDone=SECTIONS.every(s=>allAnswered(s.id));
+  const summary=document.getElementById("summary");
+  if(!allDone){summary.classList.remove("visible");return;}
+  summary.classList.add("visible");
+  document.getElementById("summary-grid").innerHTML=SECTIONS.map(s=>{const score=getScore(s.id);const range=getRange(s,score);const [rc,rbg]=levelColors(range.level);return `<div class="summary-card"><div class="name" style="color:${s.color}">${s.label}</div><div class="val" style="color:${rc}">${score}</div><div class="lbl" style="color:${rc}">${range.label}</div></div>`;}).join('');
+  const high=SECTIONS.filter(s=>getRange(s,getScore(s.id)).level>=1);
+  document.getElementById("alert-list").innerHTML=high.length===0?`<div style="text-align:center;font-size:13px;color:#888780;padding:12px">Tu perfil hormonal luce equilibrado.</div>`:high.map(s=>{const [rc,rbg]=levelColors(getRange(s,getScore(s.id)).level);const range=getRange(s,getScore(s.id));return `<div class="alert-item" style="background:${rbg}"><div class="alert-icon" style="background:${s.color}"></div><div><div class="alert-title" style="color:${rc}">${s.label} — ${range.label}</div><div class="alert-desc">${range.tip}</div></div></div>`;}).join('');
+}
+function resetAll(){SECTIONS.forEach(s=>{state[s.id]=new Array(7).fill(-1)});renderSections();document.querySelectorAll(".section-body").forEach(b=>b.classList.remove("open"))}
+renderSections();
+document.getElementById("body-cortisol").classList.add("open");
+</script>
+</body>
+  </html>
